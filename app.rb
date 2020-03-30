@@ -6,7 +6,7 @@ class App
     if @request.path == '/time'
       format_params = @request.params['format'].split(',')
       time = TimeHandler.new(format_params)
-      response(time.status, time.response + "\n")
+      response(time.status, time.response)
     else
       response(404, 'Not Found')
     end
@@ -14,11 +14,11 @@ class App
 
   private
 
-  def response(code, text)
+  def response(status, body)
     [
-      code,
+      status,
       { 'Content-Type' => 'text/plain' },
-      [text]
+      [body + "\n"]
     ]
   end
 end

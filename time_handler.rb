@@ -23,7 +23,7 @@ class TimeHandler
 
   def unvalid_format
     @status = 400
-    "Unvalid time format: #{@unvalid}"
+    "Unvalid time format: "+ @unvalid *  ", "
   end
 
   def time_output
