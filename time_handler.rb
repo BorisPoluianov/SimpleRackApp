@@ -10,39 +10,34 @@ class TimeHandler
 
   def initialize(format_params)
     @valid = ''
-    @unvalid = []
+    @invalid = []
     @requested_format = format_params
   end
 
   def call
     parse
-    if format_valid?
-      time_in_format
-    else
-      error
-    end
   end
 
   def format_valid?
-    @unvalid.empty?
+    @invalid.empty?
   end
 
-  private
-
   def error
-    "Unvalid time format: "+ @unvalid * ", "
+    "Invalid time format: "+ @invalid * ", "
   end
 
   def time_in_format
     Time.now.strftime(@valid)
   end
 
+  private
+
   def parse
     @requested_format.each do |format|
       if VALID_FORMATS[format]
         @valid += VALID_FORMATS[format]
       else
-        @unvalid << format
+        @invalid << format
       end
     end
   end

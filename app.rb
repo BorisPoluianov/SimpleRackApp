@@ -22,12 +22,14 @@ class App
   def handle_time
     format_params = @request.params['format'].split(',')
     time_handler = TimeHandler.new(format_params)
-    body = time_handler.call
+    time_handler.call
 
     if time_handler.format_valid?
       status = 200
+      body = time_handler.time_in_format
     else
       status = 400
+      body = time_handler.error
     end
 
     response(body, status)
