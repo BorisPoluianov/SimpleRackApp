@@ -1,24 +1,39 @@
 require_relative 'time_handler'
 
 class App
+  HEADER = { 'Content-Type' => 'text/plain' }.freeze
+
   def call(env)
     @request = Rack::Request.new(env)
-    if @request.path == '/time'
-      format_params = @request.params['format'].split(',')
-      time = TimeHandler.new(format_params)
-      response(time.status, time.response)
+
+    if @request.path_info == '/time'
+      params? ? handle_time : response('Params not given', 400)
     else
-      response(404, 'Not Found')
+      response('Not Found', 404)
     end
   end
 
   private
 
-  def response(status, body)
-    [
-      status,
-      { 'Content-Type' => 'text/plain' },
-      [body + "\n"]
-    ]
+  def params?
+    !@request.params['format'].nil?
+  end
+
+  def handle_time
+    format_params = @request.params['format'].split(',')
+    time_handler = TimeHandler.new(format_params)
+    body = time_handler.call
+
+    if time_handler.format_valid?
+      status = 200
+    else
+      status = 400
+    end
+
+    response(body, status)
+  end
+
+  def response(body, status)
+    Rack::Response.new(body + "\n", status, HEADER).finish
   end
 end

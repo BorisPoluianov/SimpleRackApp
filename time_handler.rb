@@ -1,38 +1,44 @@
 class TimeHandler
-  attr_reader :status, :response
-
   VALID_FORMATS = {
-    'year' => '%Y-', 'month' => '%m-', 'day' => '%d',
-    'hour' => '%H:', 'minute' => '%M:', 'second' => '%S'
+    'year' => '%Y-',
+    'month' => '%m-',
+    'day' => '%d',
+    'hour' => '%H:',
+    'minute' => '%M:',
+    'second' => '%S'
   }.freeze
 
-  def initialize(params)
+  def initialize(format_params)
     @valid = ''
     @unvalid = []
-    @response = time_format(params)
+    @requested_format = format_params
+  end
+
+  def call
+    parse
+    if format_valid?
+      time_in_format
+    else
+      error
+    end
+  end
+
+  def format_valid?
+    @unvalid.empty?
   end
 
   private
 
-  def time_format(params)
-    parse(params)
-
-    return unvalid_format unless @unvalid.empty?
-    time_output
+  def error
+    "Unvalid time format: "+ @unvalid * ", "
   end
 
-  def unvalid_format
-    @status = 400
-    "Unvalid time format: "+ @unvalid *  ", "
-  end
-
-  def time_output
-    @status = 200
+  def time_in_format
     Time.now.strftime(@valid)
   end
 
-  def parse(params)
-    params.each do |format|
+  def parse
+    @requested_format.each do |format|
       if VALID_FORMATS[format]
         @valid += VALID_FORMATS[format]
       else
